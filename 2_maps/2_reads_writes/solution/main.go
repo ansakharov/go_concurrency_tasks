@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// code: https://go.dev/play/p/y2hIBiue3bx
+// Use rwmutex for reads
 func main() {
 	storage := make(map[int]int, 500)
 

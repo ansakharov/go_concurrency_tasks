@@ -6,30 +6,20 @@ import (
 	"sync"
 )
 
-// 1 find bug
-// 2 add limiter
-// code: https://go.dev/play/p/6HWhEeaxi2S
+// add limiter with limit 10 per second
+// read values concurrently
 func main() {
-	count := 100
+	count := 50
 	ch := make(chan int, count)
 
 	wg := sync.WaitGroup{}
 	for i := 0; i < count; i++ {
-
 		wg.Add(1)
 		go func() {
-			ch <- RPCCall(&wg)
+			wg.Done()
+			ch <- RPCCall()
 		}()
 	}
-
-	go func() {
-		wg.Add(1)
-		defer wg.Done()
-
-		for i := 0; i < count; i++ {
-			fmt.Println(<-ch)
-		}
-	}()
 
 	wg.Wait()
 	close(ch)
@@ -38,8 +28,6 @@ func main() {
 	}
 }
 
-func RPCCall(wg *sync.WaitGroup) int {
-	defer wg.Done()
-
+func RPCCall() int {
 	return rand.Int()
 }

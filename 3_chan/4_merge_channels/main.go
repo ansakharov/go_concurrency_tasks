@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-// code: https://go.dev/play/p/oE3BbocA5Mv
+// merge two channels
 func main() {
 	ch1 := make(chan int, 10)
 	ch2 := make(chan int, 20)
@@ -10,6 +10,8 @@ func main() {
 	ch1 <- 1
 	ch2 <- 2
 	ch2 <- 4
+	close(ch1)
+	close(ch2)
 
 	ch3 := merge[int](ch1, ch2)
 
@@ -18,25 +20,9 @@ func main() {
 	}
 }
 
-func merge[T any](chns ...chan T) chan T {
+func merge[T any](chans ...chan T) chan T {
 	ch := make(chan T)
 	close(ch)
+
 	return ch
 }
-
-/*func merge[T any](chns ...chan T) chan T {
-	result := make(chan T)
-
-	go func() {
-		for _, ch := range chns {
-			close(ch)
-			for value := range ch {
-				result <- value
-			}
-		}
-		close(result)
-	}()
-
-	return result
-}
-*/

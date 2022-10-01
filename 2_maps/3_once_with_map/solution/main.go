@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-// code: https://go.dev/play/p/xXd_RLWE-t-
+// don't miss mutex for read
 func main() {
 	storage := make(map[int]struct{})
 	mu := sync.RWMutex{}
@@ -17,11 +17,14 @@ func main() {
 		doubles = append(doubles, rand.Intn(10)) // create rand num 0...9
 	}
 
+	wg := sync.WaitGroup{}
 	uniqueIDs := make(chan int, capacity)
 	for i := 0; i < capacity; i++ {
 		i := i
 
+		wg.Add(1)
 		go func() {
+			defer wg.Done()
 			mu.Lock()
 			defer mu.Unlock()
 			if _, ok := storage[doubles[i]]; !ok {
@@ -36,6 +39,7 @@ func main() {
 		}()
 	}
 
+	wg.Done()
 	fmt.Printf("len of ids: %d\n", len(uniqueIDs))
 	fmt.Println(uniqueIDs)
 }

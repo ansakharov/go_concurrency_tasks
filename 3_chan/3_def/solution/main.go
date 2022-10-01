@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-// code: https://go.dev/play/p/asOfB4XAXyw
+// use default
 func main() {
 	ch := make(chan int)
 

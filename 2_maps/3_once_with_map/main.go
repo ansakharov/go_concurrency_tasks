@@ -6,9 +6,10 @@ import (
 	"sync"
 )
 
-// code: https://go.dev/play/p/0PvwVzg3fYo
+// selected only unique values
+// find bug with reads-writes
 func main() {
-	storage := make(map[int]struct{})
+	alreadyStored := make(map[int]struct{})
 	mu := sync.Mutex{}
 	capacity := 1000
 
@@ -18,13 +19,15 @@ func main() {
 	}
 
 	uniqueIDs := make(chan int, capacity)
+	wg := sync.WaitGroup{}
+
 	for i := 0; i < capacity; i++ {
 		i := i
-
+		wg.Add(1)
 		go func() {
-			if _, ok := storage[doubles[i]]; !ok {
+			if _, ok := alreadyStored[doubles[i]]; !ok {
 				mu.Lock()
-				storage[doubles[i]] = struct{}{}
+				alreadyStored[doubles[i]] = struct{}{}
 				mu.Unlock()
 
 				uniqueIDs <- doubles[i]
@@ -32,6 +35,11 @@ func main() {
 		}()
 	}
 
-	fmt.Printf("len of ids: %d\n", len(uniqueIDs))
+	wg.Wait()
+	for val := range uniqueIDs {
+		fmt.Println(val)
+	}
+
+	fmt.Printf("len of ids: %d\n", len(uniqueIDs)) // 0, 1, 2, 3, 4 ...
 	fmt.Println(uniqueIDs)
 }

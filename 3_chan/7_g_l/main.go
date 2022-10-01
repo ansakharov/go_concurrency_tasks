@@ -4,23 +4,23 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"runtime"
 	"time"
 )
 
-// find problem in code and fix it
-// code: https://go.dev/play/p/bcakSCXWQepo
+// why goroutines leaked? find problem and fix it
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	for i := 0; i < 100; i++ {
-		work(ctx)
-		// assume, that at i == 5 some error occurs
-		if i == 5 {
-			cancel()
-		}
+		go work(ctx)
 	}
+	fmt.Printf("Goroutines running: %d\n", runtime.NumGoroutine())
+
+	cancel()
 
 	// server doesn't die. Imagine, it's doing useful work.
 	for {
+		fmt.Printf("Goroutines leaks: %d\n", runtime.NumGoroutine()-1)
 		fmt.Printf("i do some useful work, print num: %d\n", rand.Int())
 		time.Sleep(time.Second)
 	}
@@ -42,6 +42,7 @@ func work(ctx context.Context) {
 }
 
 func rpcCall() int {
+	<-time.After(time.Minute)
 	return rand.Int()
 }
 

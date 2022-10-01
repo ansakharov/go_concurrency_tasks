@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// code: https://go.dev/play/p/pek5x9LdQCx
+// find and fix 2 bugs
 func main() {
 	var storage map[int]int
 

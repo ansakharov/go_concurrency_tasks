@@ -1,13 +1,20 @@
 package main
 
-// code: https://go.dev/play/p/BKqT33xVV0R
-func main() {
-	ch := make(chan int)
+import (
+	"fmt"
+	"runtime"
+)
 
-	<-ch
+// what happens here?
+func main() {
+	ch := make(chan int, 1)
+
+	fmt.Println(runtime.NumGoroutine())
+	ch <- 1
 }
 
-/*func main() {
+// what happens here?
+func main2() {
 	select {}
 	fmt.Println("finish")
-}*/
+}

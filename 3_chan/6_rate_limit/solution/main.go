@@ -7,21 +7,22 @@ import (
 	"time"
 )
 
-// code: https://go.dev/play/p/Tjy1TmZviXn
+// add simple limiter, read from gorotuine
 func main() {
 
 	limiter := make(chan struct{}, 10)
 
 	go func() {
 		for {
-			<-time.After(time.Second)
+			t := time.NewTicker(time.Second)
+			<-t.C
 			for i := 0; i < 10; i++ {
 				limiter <- struct{}{}
 			}
 		}
 	}()
 
-	count := 100
+	count := 50
 	ch := make(chan int, count)
 
 	wg := sync.WaitGroup{}
@@ -34,8 +35,8 @@ func main() {
 		}()
 	}
 
+	wg.Add(1)
 	go func() {
-		wg.Add(1)
 		defer wg.Done()
 
 		for i := 0; i < count; i++ {

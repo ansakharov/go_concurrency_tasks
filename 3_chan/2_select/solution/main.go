@@ -1,21 +1,23 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"time"
 )
 
-// code: https://go.dev/play/p/QKQD8r7AnW_9
+// add ctx with timeout
 func main() {
 	chanForResp := make(chan int)
 	go RPCCall(chanForResp)
 
+	ctx, _ := context.WithTimeout(context.Background(), time.Second)
 	select {
 	case result := <-chanForResp:
 		fmt.Println(result)
-	case <-time.After(time.Second):
-		fmt.Println("timeout")
+	case <-ctx.Done():
+		fmt.Println("timeout ctx")
 	}
 }
 

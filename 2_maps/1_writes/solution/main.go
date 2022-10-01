@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// code: https://go.dev/play/p/Pjvztfbghwy
+// create map with make and use mutex
 func main() {
 	storage := make(map[int]int, 1000)
 	mu := sync.Mutex{}
@@ -21,7 +21,7 @@ func main() {
 			defer mu.Unlock()
 			defer wg.Done()
 
-			storage[i] = i << 2
+			storage[i] = i
 		}()
 	}
 

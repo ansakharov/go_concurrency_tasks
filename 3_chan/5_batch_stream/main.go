@@ -7,7 +7,10 @@ import (
 	"time"
 )
 
-// code: https://go.dev/play/p/AIKRroy-rpV
+// replace batch processing with stream processing
+// now program waits until all process functions completes
+// it should return jobs concurrently, after processing each job
+// use channels
 type job struct {
 	value int64
 	state State

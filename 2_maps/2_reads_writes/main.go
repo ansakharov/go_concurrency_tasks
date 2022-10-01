@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// code: https://go.dev/play/p/6CS0DJe739y
+// find&fix bug with reads-writes
 func main() {
 	storage := make(map[int]int, 1000)
 
@@ -27,7 +27,7 @@ func main() {
 	}
 	wg.Add(reads)
 	for i := 0; i < reads; i++ {
-		i := 0
+		i := i
 		go func() {
 			defer wg.Done()
 

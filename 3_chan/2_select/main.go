@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// code: https://go.dev/play/p/LoMOFIuHbnF
+// add timeout to avoid long waiting
 func main() {
 	chanForResp := make(chan int)
 	go RPCCall(chanForResp)

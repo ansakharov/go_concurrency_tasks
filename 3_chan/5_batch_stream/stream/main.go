@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// code: https://go.dev/play/p/ReH3Dyp93-Y
+// channels allows concurrent processing
 type job struct {
 	value int64
 	state State
