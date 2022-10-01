@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 // code: https://go.dev/play/p/mJQEs5Srpet
 func main() {
@@ -21,13 +24,21 @@ func main() {
 func merge[T any](chns ...chan T) chan T {
 	result := make(chan T)
 
+	wg := sync.WaitGroup{}
 	go func() {
+		wg.Add(1)
+		defer wg.Done()
 		for _, ch := range chns {
 			close(ch)
 			for value := range ch {
 				result <- value
 			}
 		}
+		close(result)
+	}()
+
+	go func() {
+		wg.Wait()
 		close(result)
 	}()
 
