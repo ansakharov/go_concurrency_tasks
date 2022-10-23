@@ -5,7 +5,6 @@ import (
 	"sync"
 )
 
-// code: https://go.dev/play/p/bnWi4eq_wxN
 func main() {
 	wg := sync.WaitGroup{}
 	counter := 20

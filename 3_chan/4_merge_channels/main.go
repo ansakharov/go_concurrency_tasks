@@ -20,7 +20,10 @@ func main() {
 	}
 }
 
-func merge[T any](chans ...chan T) chan T {
+type s struct {
+	
+}
+func (si s[T any]) merge(chans ...chan T) chan T {
 	ch := make(chan T)
 	close(ch)
 
