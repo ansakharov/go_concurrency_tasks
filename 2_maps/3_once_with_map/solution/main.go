@@ -39,7 +39,7 @@ func main() {
 		}()
 	}
 
-	wg.Done()
+	wg.Wait()
 	fmt.Printf("len of ids: %d\n", len(uniqueIDs))
 	fmt.Println(uniqueIDs)
 }
