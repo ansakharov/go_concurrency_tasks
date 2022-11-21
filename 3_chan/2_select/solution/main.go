@@ -9,8 +9,7 @@ import (
 
 // add ctx with timeout
 func main() {
-	chanForResp := make(chan int)
-	go RPCCall(chanForResp)
+	chanForResp := RPCCall()
 
 	ctx, _ := context.WithTimeout(context.Background(), time.Second)
 	select {
@@ -19,10 +18,24 @@ func main() {
 	case <-ctx.Done():
 		fmt.Println("timeout ctx")
 	}
+
+	go func() {
+		fmt.Println(<-chanForResp)
+	}()
+
+	time.Sleep(time.Second * 10)
 }
 
-func RPCCall(ch chan<- int) {
-	time.Sleep(time.Hour)
+func RPCCall() <-chan int {
+	chanForResp := make(chan int)
 
-	ch <- rand.Int()
+	go func() {
+		defer close(chanForResp)
+
+		time.Sleep(time.Second * 5)
+
+		chanForResp <- rand.Int()
+	}()
+
+	return chanForResp
 }

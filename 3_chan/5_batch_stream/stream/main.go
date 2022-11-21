@@ -4,7 +4,12 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"sync"
 	"time"
+)
+
+var (
+	chLen = 100
 )
 
 // channels allows concurrent processing
@@ -23,7 +28,7 @@ const (
 )
 
 func FirstProcessing(in <-chan job) chan job {
-	out := make(chan job)
+	out := make(chan job, chLen)
 
 	go func() {
 		for j := range in {
@@ -39,7 +44,7 @@ func FirstProcessing(in <-chan job) chan job {
 }
 
 func SecondProcessing(in <-chan job) chan job {
-	out := make(chan job)
+	out := make(chan job, chLen)
 
 	go func() {
 		for j := range in {
@@ -55,14 +60,12 @@ func SecondProcessing(in <-chan job) chan job {
 }
 
 func LastProcessing(in <-chan job) chan job {
-	out := make(chan job)
+	out := make(chan job, chLen)
 
 	go func() {
 		for j := range in {
 			j.value = int64(float64(j.value) / float64(rand.Intn(10)))
 			j.state = FinishedStage
-
-			fmt.Println(j)
 			out <- j
 		}
 		close(out)
@@ -73,23 +76,32 @@ func LastProcessing(in <-chan job) chan job {
 
 func main() {
 	length := 50_000_000
-	jobs := make([]job, length)
-	in := make(chan job, len(jobs))
-	for i := 0; i < length; i++ {
-		jobs[i].value = int64(i)
-		in <- jobs[i]
-	}
-	close(in)
+	in := make(chan job, chLen)
 
 	start := time.Now()
 
-	result := LastProcessing(
-		SecondProcessing(
-			FirstProcessing(in),
-		),
-	)
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
 
-	_ = result
+		result := LastProcessing(
+			SecondProcessing(
+				FirstProcessing(in),
+			),
+		)
+
+		for _ = range result {
+		}
+	}()
+
+	for i := 0; i < length; i++ {
+		in <- job{value: int64(i)}
+	}
+	close(in)
+
+	wg.Wait()
+
 	finished := time.Since(start)
 
 	fmt.Println(finished)
