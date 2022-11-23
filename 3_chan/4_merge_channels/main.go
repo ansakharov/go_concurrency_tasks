@@ -2,6 +2,10 @@ package main
 
 import "fmt"
 
+type Number interface {
+	int | float64
+}
+
 // merge two channels
 func main() {
 	ch1 := make(chan int, 10)
@@ -20,12 +24,6 @@ func main() {
 	}
 }
 
-type s struct {
-	
-}
-func (si s[T any]) merge(chans ...chan T) chan T {
-	ch := make(chan T)
-	close(ch)
-
-	return ch
+func merge[T any](chans ...chan T) chan T {
+	return nil
 }
