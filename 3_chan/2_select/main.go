@@ -8,6 +8,8 @@ import (
 
 // add timeout to avoid long waiting
 func main() {
+	rand.Seed(time.Now().Unix())
+
 	chanForResp := make(chan int)
 	go RPCCall(chanForResp)
 
@@ -16,7 +18,8 @@ func main() {
 }
 
 func RPCCall(ch chan<- int) {
-	time.Sleep(time.Hour)
+	// sleep 0-4 sec
+	time.Sleep(time.Second * time.Duration(rand.Intn(5)))
 
 	ch <- rand.Int()
 }
