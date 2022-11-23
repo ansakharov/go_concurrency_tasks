@@ -1,10 +1,8 @@
 package main
 
-import "fmt"
-
-type Number interface {
-	int | float64
-}
+import (
+	"fmt"
+)
 
 // merge two channels
 func main() {
@@ -17,6 +15,7 @@ func main() {
 	close(ch1)
 	close(ch2)
 
+	// ch3 := syncMerge(ch1, ch2) // bad sync way of merging
 	ch3 := merge[int](ch1, ch2)
 
 	for val := range ch3 {
@@ -26,4 +25,21 @@ func main() {
 
 func merge[T any](chans ...chan T) chan T {
 	return nil
+}
+
+func syncMerge[T any](chans ...chan T) chan T {
+	l := 0
+	for _, singleCh := range chans {
+		l += len(singleCh) // 3
+	}
+
+	result := make(chan T, l)
+	for _, singleCh := range chans {
+		for val := range singleCh {
+			result <- val
+		}
+	}
+	close(result)
+
+	return result
 }
