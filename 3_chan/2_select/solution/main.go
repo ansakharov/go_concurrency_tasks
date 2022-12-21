@@ -22,12 +22,8 @@ func main() {
 	chanForResp := make(chan resp)
 	go RPCCall(ctx, chanForResp)
 
-	select {
-	case result := <-chanForResp:
-		fmt.Println(result)
-	case <-ctx.Done():
-		fmt.Println("timeout ctx")
-	}
+	resp := <-chanForResp
+	fmt.Println(resp.id, resp.err)
 }
 
 func RPCCall(ctx context.Context, ch chan<- resp) {
