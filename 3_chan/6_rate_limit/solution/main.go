@@ -9,49 +9,52 @@ import (
 
 // add simple limiter, read from gorotuine
 func main() {
+	const (
+		limitPerSecond = 25
+		requestCount   = 50
+	)
 
-	limiter := make(chan struct{}, 10)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	go func() {
+	ch := make(chan int, requestCount)
+
+	limiter := make(chan struct{})
+	ticker := time.NewTicker(time.Second / limitPerSecond)
+	go func(ctx context.Context) {
 		for {
-			t := time.NewTicker(time.Second)
-			<-t.C
-			for i := 0; i < 10; i++ {
+			select {
+			case <-ticker.C:
 				limiter <- struct{}{}
+			case <-ctx.Done():
+				return
 			}
 		}
-	}()
-
-	count := 50
-	ch := make(chan int, count)
+	}(ctx)
 
 	wg := sync.WaitGroup{}
-	for i := 0; i < count; i++ {
-		wg.Add(1)
+	wg.Add(requestCount)
+	for i := 0; i < requestCount; i++ {
 		go func() {
 			defer wg.Done()
 
-			ch <- RPCCallWithLimiter(limiter)
+			<-limiter
+			ch <- RPCCall()
 		}()
 	}
 
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
-
-		for i := 0; i < count; i++ {
-			fmt.Println(<-ch)
-		}
+		wg.Wait()
+		close(ch)
 	}()
 
-	wg.Wait()
+	for value := range ch {
+		fmt.Println(value)
+	}
 }
 
 func RPCCall() int {
 	return rand.Int()
 }
 
-func RPCCallWithLimiter(limiter chan struct{}) int {
-	<-limiter
-	return RPCCall()
-}
+	
